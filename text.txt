@@ -1,0 +1,1 @@
+{'h1': 44, 't1': 32, 'sensor_id': 'test0', 'timestamp': 1715766013}
