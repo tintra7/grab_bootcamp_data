@@ -12,26 +12,23 @@ AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
 ENDPOINT = "localhost:9000"
 
+def create_consumer(bootstrap_server=['localhost:9092'], topic_name=""):
+    
+    # Create consumer
+    consumer = KafkaConsumer(
+        topic_name,
+        bootstrap_servers=bootstrap_server,
+        auto_offset_reset='latest',
+        enable_auto_commit='true'
+    )
+    return consumer
 
 class Ingestion:
-    def __init__(self, bootstrap_server, topic_name) -> None:
-        self.bootstrap_server = bootstrap_server
-        self.topic_name = topic_name
-        
-    def create_consumer(self):
-        
-        # Create consumer
-        consumer = KafkaConsumer(
-            self.topic_name,
-            bootstrap_servers=self.bootstrap_server,
-            auto_offset_reset='latest',
-            enable_auto_commit='true'
-        )
-        return consumer
+    def __init__(self, consumer) -> None:
+        self.consumer = consumer
         
     def ingest(self):
-        consumer = self.create_consumer()
-        for message in consumer:
+        for message in self.consumer:
         
             data = json.loads(message.value)
             sensor_id = data['sensor_id']
@@ -50,6 +47,9 @@ class Ingestion:
                             "client_kwargs": {"endpoint_url": "http://localhost:9000/"}
                         })
             print(f"Add {name}.parquet to datalake")
+            
 if __name__ == "__main__":
-    Ingestion = Ingestion("localhost:9092", "test1")
+    # Stream sensor data into MinIO partition by sensor id, day, month, year
+    consumer = create_consumer(topic_name="66497c500f588f3e5549f8a6")
+    Ingestion = Ingestion(consumer)
     Ingestion.ingest()
