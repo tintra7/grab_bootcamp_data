@@ -71,14 +71,16 @@ async def send_historic_value(sensor_id, record):
                         "key": AWS_ACCESS_KEY,
                         "secret": AWS_SECRET_KEY,
                         "client_kwargs": {"endpoint_url": "http://localhost:9000/"}
-                    })
+                    }).drop(['year', 'month', 'day', 'sensor_id'], axis=1)
+    df['timestamp'] = pd.to_datetime(df['timestamp'],unit='s')
+    df['timestamp'] = df['timestamp'].astype(str)
     df = df.tail(record)
     response = {}
     print(df.columns)
     for i in df.columns:
         response[i] = list(df[i].values)
     response = json.dumps(response, cls=NpEncoder)
-    return JSONResponse(status_code=status.HTTP_200_OK, content=response)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=json.loads(response))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
