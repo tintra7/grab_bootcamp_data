@@ -17,7 +17,7 @@ from np_encoder import NpEncoder
 
 load_dotenv()
 
-URI = "mongodb+srv://bpthien21:zcAUQCmVMqSNqqYp@ac17.apw1jfi.mongodb.net/?retryWrites=true&w=majority&appName=AC17"
+URI = os.environ.get("DB_URI")
 
 AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
