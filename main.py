@@ -17,23 +17,16 @@ from np_encoder import NpEncoder
 
 load_dotenv()
 
-URI = "mongodb://localhost:27017"
+URI = "mongodb+srv://bpthien21:zcAUQCmVMqSNqqYp@ac17.apw1jfi.mongodb.net/?retryWrites=true&w=majority&appName=AC17"
 
 AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
 ENDPOINT = "localhost:9000"
 app = FastAPI()
 
-origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
-    "http://localhost",
-    "http://localhost:8080",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,21 +39,21 @@ def read_root():
 
 # Get current sensor data (temperature and humidity)
 @app.get("/api/sensor/current")
-async def send_sensor(sensor_id: str):
+async def send_sensor(sensorId: str):
     # Check if sensor_id is in mongo database
     print("Get current sensor data")
     client = MongoClient(URI)
-    iot_db = client['iot_management']
+    iot_db = client['test']
     sensor_col = iot_db['sensors']
-    sensor = sensor_col.find_one({'_id': ObjectId(sensor_id)})
+    sensor = sensor_col.find_one({'_id': ObjectId(sensorId)})
     
     if not sensor:
         client.close()
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Not found sensor id"})
     client.close()
-    print(sensor_id)
+    print(sensorId)
     consumer = KafkaConsumer(
-        sensor_id,
+        sensorId,
         bootstrap_servers=['localhost:9092'],
         auto_offset_reset='latest',
         enable_auto_commit='true'
@@ -72,20 +65,20 @@ async def send_sensor(sensor_id: str):
     
 
 @app.get("/api/sensor/last")
-async def send_historic_value(sensor_id, record):
+async def send_historic_value(sensorId, record):
     record = int(record)
     # Check if sensor_id is in mongo database
     client = MongoClient(URI)
-    iot_db = client['iot_management']
+    iot_db = client['test']
     sensor_col = iot_db['sensors']
-    sensor = sensor_col.find_one({'_id': ObjectId(sensor_id)})
+    sensor = sensor_col.find_one({'_id': ObjectId(sensorId)})
 
     if not sensor:
         client.close()
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Not found sensor id"})
     client.close()
 
-    df = pd.read_parquet(f"s3://datalake/{sensor_id}",
+    df = pd.read_parquet(f"s3://datalake/{sensorId}",
                          storage_options={
                         "key": AWS_ACCESS_KEY,
                         "secret": AWS_SECRET_KEY,

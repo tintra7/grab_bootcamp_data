@@ -25,6 +25,7 @@ python main.py
 ```
 
 Sample api url
+
 Get current sensor temperature and humidity: http://localhost:5000/api/sensor/current/?sensor_id=66497c500f588f3e5549f8a6
 
 Get history temperature and humidity: http://localhost:5000/api/sensor/last/?sensor_id=66497c500f588f3e5549f8a6&record=10
