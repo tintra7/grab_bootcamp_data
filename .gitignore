@@ -10,6 +10,5 @@ minio-data
 
 fake_data_to_mongo.py
 
-simulate.py
 
 text.txt
