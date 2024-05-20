@@ -1,11 +1,14 @@
 from fastapi import FastAPI
+from fastapi import status
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+
 from kafka import KafkaConsumer
 import json
 import pandas as pd 
 from datetime import date
 from pymongo import MongoClient
-from fastapi import Body, FastAPI, status
-from fastapi.responses import JSONResponse
+
 from bson import ObjectId
 import os
 from dotenv import load_dotenv
@@ -20,6 +23,22 @@ AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
 ENDPOINT = "localhost:9000"
 app = FastAPI()
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 def read_root():
@@ -83,4 +102,4 @@ async def send_historic_value(sensor_id, record):
     return JSONResponse(status_code=status.HTTP_200_OK, content=json.loads(response))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="localhost", port=5000)
