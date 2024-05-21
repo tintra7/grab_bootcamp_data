@@ -23,11 +23,11 @@ def create_consumer(bootstrap_server=['localhost:9092'], topic_name=""):
     )
     return consumer
 
-class Ingestion:
+class Staging:
     def __init__(self, consumer) -> None:
         self.consumer = consumer
         
-    def stageing(self):
+    def staging(self):
         for message in self.consumer:
         
             data = json.loads(message.value)
@@ -50,6 +50,6 @@ class Ingestion:
             
 if __name__ == "__main__":
     # Stream sensor data into MinIO partition by sensor id, day, month, year
-    consumer = create_consumer(topic_name="66497c500f588f3e5549f8a6")
-    Ingestion = Ingestion(consumer)
-    Ingestion.ingest()
+    consumer = create_consumer(topic_name="6642237e64e4a690113f5f97")
+    staging = Staging(consumer)
+    staging.staging()
