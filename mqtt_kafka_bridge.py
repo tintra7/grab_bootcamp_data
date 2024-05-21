@@ -21,11 +21,15 @@ CLUSTER = os.environ.get("MQTT_CLUSTER")
 PORT = 8883
 TOPIC = "6642237e64e4a690113f5f97"
 
+
+def serializer(message):
+    return json.dumps(message).encode('utf-8')
+
 def on_message(client, userdata, message):
  
-    data = str(message.payload)[1:]
+    data = str(message.payload)[2:-1]
     print(data)
-    producer.send(TOPIC, data)
+    producer.send(TOPIC, json.loads(data))
 
 if __name__ == "__main__":
     sslSettings = ssl.SSLContext(mqtt.client.ssl.PROTOCOL_TLS)
