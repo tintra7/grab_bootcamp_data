@@ -18,7 +18,7 @@ while True:
     
     msg = {
         "humidity": random.randint(30, 60),
-        "temp": random.randint(30, 37),
+        "temp": random.randint(34, 37),
         "sensor_id": sensor_id,
         "timestamp": int(time.time())
     }
