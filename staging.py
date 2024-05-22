@@ -50,6 +50,6 @@ class Staging:
             
 if __name__ == "__main__":
     # Stream sensor data into MinIO partition by sensor id, day, month, year
-    consumer = create_consumer(topic_name="6642237e64e4a690113f5f97")
+    consumer = create_consumer(topic_name="sensor")
     staging = Staging(consumer)
     staging.staging()

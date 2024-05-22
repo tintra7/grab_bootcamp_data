@@ -7,6 +7,7 @@ from time import sleep
 sensor_id = "6642237e64e4a690113f5f97"
 
 TIME_ZONE = 3600*7
+topic = "sensor"
 
 def serializer(message):
     return json.dumps(message).encode('utf-8')
@@ -25,5 +26,5 @@ while True:
         "timestamp": int(time.time()) + TIME_ZONE
     }
     print("Send", str(msg))
-    producer.send(sensor_id, msg)
+    producer.send(topic, msg)
     sleep(1)

@@ -25,6 +25,8 @@ URI = os.environ.get("DB_URI")
 AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
 ENDPOINT = "localhost:9000"
+
+topic = "sensor"
 app = FastAPI()
 
 app.add_middleware(
@@ -103,26 +105,30 @@ def read_root():
 async def send_sensor(sensorId: str):
     # Check if sensor_id is in mongo database
     print("Get current sensor data")
-    client = MongoClient(URI)
-    iot_db = client['test']
-    sensor_col = iot_db['sensors']
-    sensor = sensor_col.find_one({'_id': ObjectId(sensorId)})
-    
+    try:
+        
+        client = MongoClient(URI)
+        iot_db = client['test']
+        sensor_col = iot_db['sensors']
+        sensor = sensor_col.find_one({'_id': ObjectId(sensorId)})
+    except:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Connect to database fail!"})
     if not sensor:
         client.close()
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Not found sensor id"})
     client.close()
     print(sensorId)
     consumer = KafkaConsumer(
-        sensorId,
+        topic,
         bootstrap_servers=['localhost:9092'],
         auto_offset_reset='latest',
         enable_auto_commit='true'
     )
     for message in consumer:
         response = json.loads(message.value)
-        print(response)
-        return JSONResponse(status_code=status.HTTP_200_OK, content=response)
+        if response.get("sensor_id") == sensorId:
+            print(response)
+            return JSONResponse(status_code=status.HTTP_200_OK, content=response)
     
 
 @app.get("/api/sensor/last")

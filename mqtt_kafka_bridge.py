@@ -19,7 +19,7 @@ USER = os.environ.get("MQTT_USER")
 PASSWORD = os.environ.get("MQTT_PASS")
 CLUSTER = os.environ.get("MQTT_CLUSTER")
 PORT = 8883
-TOPIC = "6642237e64e4a690113f5f97"
+TOPIC = "sensor"
 
 
 def serializer(message):
