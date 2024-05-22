@@ -33,6 +33,18 @@ app.add_middleware(
 )
 
 
+def read_data(sensorId, record):
+    df = pd.read_parquet(f"s3://datalake/{sensorId}",
+                        storage_options={
+                    "key": AWS_ACCESS_KEY,
+                    "secret": AWS_SECRET_KEY,
+                    "client_kwargs": {"endpoint_url": "http://localhost:9000/"}
+                }, engine='fastparquet').drop(['year', 'month', 'day', 'sensor_id'], axis=1)
+    df['timestamp'] = pd.to_datetime(df['timestamp'],unit='s')
+    df['timestamp'] = df['timestamp'].astype(str)
+    df = df.tail(record)
+    return df
+
 @app.get("/")
 def read_root():
     return "Hello word"
@@ -79,15 +91,7 @@ async def send_historic_value(sensorId, record):
     client.close()
 
 
-    df = pd.read_parquet(f"s3://datalake/{sensorId}",
-                        storage_options={
-                    "key": AWS_ACCESS_KEY,
-                    "secret": AWS_SECRET_KEY,
-                    "client_kwargs": {"endpoint_url": "http://localhost:9000/"}
-                }, engine='fastparquet').drop(['year', 'month', 'day', 'sensor_id'], axis=1)
-    df['timestamp'] = pd.to_datetime(df['timestamp'],unit='s')
-    df['timestamp'] = df['timestamp'].astype(str)
-    df = df.tail(record)
+    df = read_data(sensorId=sensorId, record=record)
     response = {}
     print(df.columns)
     for i in df.columns:
